@@ -161,6 +161,30 @@ exports.stringify = function (op, sep, cl, indent) {
   return stream
 }
 
+exports.stringifyToCSV = function (headers, iterator) {
+  var headers = headers || [];
+
+  var stream
+    , first = true
+    , anyData = false
+  stream = through(function (data) {
+    anyData = true;
+    var string = '';
+    if(first) { 
+      first = false ; 
+      if (headers.length) string += headers.join('\t')+'\n';
+    }
+    string += iterator(data).join('\t');
+    string += '\n';
+    stream.queue(string);
+  },
+  function (data) {
+    stream.queue(null)
+  })
+
+  return stream
+}
+
 exports.stringifyObject = function (op, sep, cl, indent) {
   indent = indent || 0
   if (op === false){
